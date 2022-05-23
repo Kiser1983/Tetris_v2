@@ -1,27 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tetris</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <h1>Tetris</h1>
-    <div class="main">
-        <div class="cell"></div>
-        <div class="cell"></div>
-        <div class="cell"></div>
-        <div class="cell"></div>
-        <div class="cell"></div>
-        <div class="cell"></div>
-        <div class="cell"></div>
-        <div class="cell"></div>
-        <div class="cell"></div>
-        <div class="cell"></div>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <div class="container1">
+      <div class="box-1">A</div>
+      <div class="box-2"><div class="name-game">TETRIS</div></div>
+      <div class="box-3">C</div>
+      <div class="box-4">D</div>
+    </div>
+    <div class="container2">
+      <div class="box-1">A</div>
+      <div class="box-2">
+        <div class="main"></div>
+        <div id="game-over">GAME OVER</div>
+      </div>
+      <div class="box-3">
+        <div id="next-figure"></div>
+
+        <div class="top">
+        <div>Level: <span id="level">0</span></div>
+        <div>Score: <span id="score">0</span></div>
+      </div>
+      
+      <div class="bottom">
+        <button id="start" class="btn">Старт</button>
+        <button id="pause"class="btn">Пауза</button>
+      </div>
+
+      </div>
+      <div class="box-4">D</div>
     </div>
 
-    <script src="script.js"></script>
-</body>
+    <div id="game">
+    </div>
+
+    <script src="js/script.js"></script>
+  </body>
 </html>
