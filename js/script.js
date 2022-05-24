@@ -1,6 +1,5 @@
 let main = document.querySelector(".main");
 const scoreElem = document.getElementById("score");
-// const levelElem = document.getElementById("level");
 const nextFigElem = document.getElementById("next-figure");
 const startBtn = document.getElementById("start");
 const pauseBtn = document.getElementById("pause");
@@ -97,7 +96,7 @@ function drawNextFigure() {
   }
   nextFigElem.innerHTML = nextFigureHTML;
 }
-
+// удалить фигуру
 function deleteFigure() {
   for (let y = 0; y < field.length; y++) {
     for (let x = 0; x < field[y].length; x++) {
@@ -107,7 +106,7 @@ function deleteFigure() {
     }
   }
 }
-
+// Добавить фигуру
 function addFigure() {
   deleteFigure();
   for (let y = 0; y < activeFigure.shape.length; y++) {
@@ -187,7 +186,7 @@ function deleteLine() {
 
   if (score >= Level[level_Id].nextLevelScore) {
     level_Id++;
-    // levelElem.innerHTML = level_Id;
+
   }
 }
 
@@ -297,7 +296,6 @@ startBtn.addEventListener("click", (e) => {
 });
 
 scoreElem.innerHTML = score;
-// levelElem.innerHTML = level_Id;
 
 draw();
 
