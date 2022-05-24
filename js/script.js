@@ -1,28 +1,26 @@
 let main = document.querySelector(".main");
-const scroeElem = document.getElementById("score");
-const levelElem = document.getElementById("level");
-const nextFigureElem = document.getElementById("next-figure");
+const scoreElem = document.getElementById("score");
+// const levelElem = document.getElementById("level");
+const nextFigElem = document.getElementById("next-figure");
 const startBtn = document.getElementById("start");
 const pauseBtn = document.getElementById("pause");
 const gameOver = document.getElementById("game-over");
 
-let playField = new Array(20).fill(0).map((el) => new Array(10).fill(0));
-console.log(playField);
-
-let defaultField;
+let field = new Array(20).fill(0).map((el) => new Array(10).fill(0));
+console.log(field);
 
 let score = 0;
-let gameTimerID;
-let currentLevel = 1;
+let gameTimer;
+let level_Id = 1;
 let isPaused = true;
-let possibleLevels = {
+let Level = {
   1: {
-    scorePerLine: 10,
+    scoreForLine: 10,
     speed: 400,
-    nextLevelScore: 200,
+    nextLevel: 200,
   },
   2: {
-    scorePerLine: 50,
+    scoreForLine: 50,
     speed: 100,
     nextLevelScore: Infinity,
   },
@@ -67,55 +65,55 @@ let figures = {
 };
 
 let activeFigure = getNewFigure();
-let nextFigure = getNewFigure();
+let newFigure = getNewFigure();
 
 function draw() {
-  let mainInnerHTML = "";
-  for (let y = 0; y < playField.length; y++) {
-    for (let x = 0; x < playField[y].length; x++) {
-      if (playField[y][x] === 1) {
-        mainInnerHTML += '<div class="cell movingCell"></div>';
-      } else if (playField[y][x] === 2) {
-        mainInnerHTML += '<div class="cell fixedCell"></div>';
+  let mainHTML = "";
+  for (let y = 0; y < field.length; y++) {
+    for (let x = 0; x < field[y].length; x++) {
+      if (field[y][x] === 1) {
+        mainHTML += '<div class="cell movingCell"></div>';
+      } else if (field[y][x] === 2) {
+        mainHTML += '<div class="cell fixedCell"></div>';
       } else {
-        mainInnerHTML += '<div class="cell"></div>';
+        mainHTML += '<div class="cell"></div>';
       }
     }
   }
-  main.innerHTML = mainInnerHTML;
+  main.innerHTML = mainHTML;
 }
 
 function drawNextFigure() {
-  let nextFigureInnerHTML = "";
-  for (let y = 0; y < nextFigure.shape.length; y++) {
-    for (let x = 0; x < nextFigure.shape[y].length; x++) {
-      if (nextFigure.shape[y][x]) {
-        nextFigureInnerHTML += '<div class="cell movingCell"></div>';
+  let nextFigureHTML = "";
+  for (let y = 0; y < newFigure.shape.length; y++) {
+    for (let x = 0; x < newFigure.shape[y].length; x++) {
+      if (newFigure.shape[y][x]) {
+        nextFigureHTML += '<div class="cell movingCell"></div>';
       } else {
-        nextFigureInnerHTML += '<div class="cell"></div>';
+        nextFigureHTML += '<div class="cellPrev"></div>';
       }
     }
-    nextFigureInnerHTML += "<br/>";
+   nextFigureHTML += "<br/>";
   }
-  nextFigureElem.innerHTML = nextFigureInnerHTML;
+  nextFigElem.innerHTML = nextFigureHTML;
 }
 
-function removePrevActiveFigure() {
-  for (let y = 0; y < playField.length; y++) {
-    for (let x = 0; x < playField[y].length; x++) {
-      if (playField[y][x] === 1) {
-        playField[y][x] = 0;
+function deleteFigure() {
+  for (let y = 0; y < field.length; y++) {
+    for (let x = 0; x < field[y].length; x++) {
+      if (field[y][x] === 1) {
+        field[y][x] = 0;
       }
     }
   }
 }
 
-function addActiveFigure() {
-  removePrevActiveFigure();
+function addFigure() {
+  deleteFigure();
   for (let y = 0; y < activeFigure.shape.length; y++) {
     for (let x = 0; x < activeFigure.shape[y].length; x++) {
       if (activeFigure.shape[y][x] === 1) {
-        playField[activeFigure.y + y][activeFigure.x + x] =
+        field[activeFigure.y + y][activeFigure.x + x] =
           activeFigure.shape[y][x];
       }
     }
@@ -129,20 +127,20 @@ function rotateFigure() {
     activeFigure.shape.map((row) => row[index]).reverse()
   );
 
-  if (hasCollisions()) {
+  if (Collisions()) {
     activeFigure.shape = prevFigureState;
   }
 }
 
 // Проверка столкновения
-function hasCollisions() {
+function Collisions() {
   for (let y = 0; y < activeFigure.shape.length; y++) {
     for (let x = 0; x < activeFigure.shape[y].length; x++) {
       if (
         activeFigure.shape[y][x] &&
-        (playField[activeFigure.y + y] === undefined ||
-          playField[activeFigure.y + y][activeFigure.x + x] === undefined ||
-          playField[activeFigure.y + y][activeFigure.x + x] === 2)
+        (field[activeFigure.y + y] === undefined ||
+          field[activeFigure.y + y][activeFigure.x + x] === undefined ||
+          field[activeFigure.y + y][activeFigure.x + x] === 2)
       ) {
         return true;
       }
@@ -152,44 +150,44 @@ function hasCollisions() {
 }
 
 // Удаляем заполненную линию
-function removeFullLines() {
-  let canRemoveLine = true,
+function deleteLine() {
+  let canDelLine = true,
     filledLines = 0;
-  for (let y = 0; y < playField.length; y++) {
-    for (let x = 0; x < playField[y].length; x++) {
-      if (playField[y][x] !== 2) {
-        canRemoveLine = false;
+  for (let y = 0; y < field.length; y++) {
+    for (let x = 0; x < field[y].length; x++) {
+      if (field[y][x] !== 2) {
+        canDelLine = false;
         break;
       }
     }
-    if (canRemoveLine) {
-      playField.splice(y, 1);
-      playField.splice(0, 0, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+    if (canDelLine) {
+      field.splice(y, 1);
+      field.splice(0, 0, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
       filledLines += 1;
     }
-    canRemoveLine = true;
+    canDelLine = true;
   }
 
   switch (filledLines) {
     case 1:
-      score += possibleLevels[currentLevel].scorePerLine;
+      score += Level[level_Id].scoreForLine;
       break;
     case 2:
-      score += possibleLevels[currentLevel].scorePerLine * 2;
+      score += Level[level_Id].scoreForLine * 2;
       break;
     case 3:
-      score += possibleLevels[currentLevel].scorePerLine * 4;
+      score += Level[level_Id].scoreForLine * 4;
       break;
     case 4:
-      score += possibleLevels[currentLevel].scorePerLine * 8;
+      score += Level[level_Id].scoreForLine * 8;
       break;
   }
 
-  scroeElem.innerHTML = score;
+  scoreElem.innerHTML = score;
 
-  if (score >= possibleLevels[currentLevel].nextLevelScore) {
-    currentLevel++;
-    levelElem.innerHTML = currentLevel;
+  if (score >= Level[level_Id].nextLevelScore) {
+    level_Id++;
+    // levelElem.innerHTML = level_Id;
   }
 }
 
@@ -206,10 +204,10 @@ function getNewFigure() {
 }
 
 function fixFigure() {
-  for (let y = 0; y < playField.length; y++) {
-    for (let x = 0; x < playField[y].length; x++) {
-      if (playField[y][x] === 1) {
-        playField[y][x] = 2;
+  for (let y = 0; y < field.length; y++) {
+    for (let x = 0; x < field[y].length; x++) {
+      if (field[y][x] === 1) {
+        field[y][x] = 2;
       }
     }
   }
@@ -217,22 +215,22 @@ function fixFigure() {
 
 function moveFigureDown() {
   activeFigure.y += 1;
-  if (hasCollisions()) {
+  if (Collisions()) {
     activeFigure.y -= 1;
     fixFigure();
-    removeFullLines();
-    activeFigure = nextFigure;
-    if (hasCollisions()) {
+    deleteLine();
+    activeFigure = newFigure;
+    if (Collisions()) {
       reset();
     }
-    nextFigure = getNewFigure();
+    newFigure = getNewFigure();
   }
 }
 
 function dropFigure() {
-  for (let y = activeFigure.y; y < playField.length; y++) {
+  for (let y = activeFigure.y; y < field.length; y++) {
     activeFigure.y += 1;
-    if (hasCollisions()) {
+    if (Collisions()) {
       activeFigure.y -= 1;
       break;
     }
@@ -241,9 +239,9 @@ function dropFigure() {
 
 function reset() {
   isPaused = true;
-  clearTimeout(gameTimerID);
-  playField = new Array(20).fill(0).map((el) => new Array(10).fill(0));
-  console.log(playField);
+  clearTimeout(gameTimer);
+  field = new Array(20).fill(0).map((el) => new Array(10).fill(0));
+  console.log(field);
   draw();
   gameOver.style.display = "block";
 }
@@ -252,12 +250,12 @@ document.onkeydown = function (e) {
   if (!isPaused) {
     if (e.keyCode === 37) {
       activeFigure.x -= 1;
-      if (hasCollisions()) {
+      if (Collisions()) {
         activeFigure.x += 1;
       }
     } else if (e.keyCode === 39) {
       activeFigure.x += 1;
-      if (hasCollisions()) {
+      if (Collisions()) {
         activeFigure.x -= 1;
       }
     } else if (e.keyCode === 40) {
@@ -274,7 +272,7 @@ document.onkeydown = function (e) {
 
 function updateGameState() {
   if (!isPaused) {
-    addActiveFigure();
+    addFigure();
     draw();
     drawNextFigure();
   }
@@ -283,10 +281,10 @@ function updateGameState() {
 pauseBtn.addEventListener("click", (e) => {
   if (e.target.innerHTML === "Пауза") {
     e.target.innerHTML = "Продолжить...";
-    clearTimeout(gameTimerID);
+    clearTimeout(gameTimer);
   } else {
     e.target.innerHTML = "Пауза";
-    gameTimerID = setTimeout(startGame, possibleLevels[currentLevel].speed);
+    gameTimer = setTimeout(startGame, Level[level_Id].speed);
   }
   isPaused = !isPaused;
 });
@@ -294,12 +292,12 @@ pauseBtn.addEventListener("click", (e) => {
 startBtn.addEventListener("click", (e) => {
   e.target.innerHTML = "Старт";
   isPaused = false;
-  gameTimerID = setTimeout(startGame, possibleLevels[currentLevel].speed);
+  gameTimer = setTimeout(startGame, Level[level_Id].speed);
   gameOver.style.display = "none";
 });
 
-scroeElem.innerHTML = score;
-levelElem.innerHTML = currentLevel;
+scoreElem.innerHTML = score;
+// levelElem.innerHTML = level_Id;
 
 draw();
 
@@ -307,6 +305,6 @@ function startGame() {
   moveFigureDown();
   if (!isPaused) {
     updateGameState();
-    gameTimerID = setTimeout(startGame, possibleLevels[currentLevel].speed);
+    gameTimer = setTimeout(startGame, Level[level_Id].speed);
   }
 }
